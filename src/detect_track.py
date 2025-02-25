@@ -8,6 +8,13 @@ from pathlib import Path
 import math
 import torch
 import numpy as np
+
+
+import cv2
+#import moviepy.editor as mp3
+##########os.environ['IMAGEIO_FFMPEG_EXE'] = '/path/to/ffmpeg'
+
+
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
 from collections import deque
@@ -313,6 +320,29 @@ def parse_opt():
     print_args(vars(opt))
     return opt
 
+def vdo_superimpose():
+    lowerThird  = "../videos/pickle_2.MOV"
+    videoFile   = "../videos/pickle_1080px_slow_4_29_7_30AM.mov"
+    outputFile = "../vidoes/out/SuperImposed.mp4"
+
+    tmpvid = cv2.VideoCapture(videoFile)
+    fps = float(tmpvid.get(cv2.CAP_PROP_FPS))
+
+    videoClip = mp3.VideoFileClip(videoFile, target_resolution=(1080, 1920))
+
+    overlayClip = mp3.VideoFileClip(lowerThird, has_mask=True, target_resolution=(1080, 1920))
+
+    superimposedVideo = mp3.CompositeVideoClip([videoClip, overlayClip])
+
+    superimposedVideo.write_videofile(
+        outputFile,
+        fps = fps,
+        remove_temp = True,
+        codec = "libx264",
+        audio_codec = "aac",
+        threads = 6
+    )
+
 
 def main(opt):
     # check_requirements(exclude=('tensorboard', 'thop'))
@@ -321,5 +351,6 @@ def main(opt):
 
 
 if __name__ == "__main__":
+    #vdo_superimpose()
     opt = parse_opt()
     main(opt)
